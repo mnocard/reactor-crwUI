@@ -12,5 +12,20 @@
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
-    <Grid />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel
+            Grid.Row="0"
+            Margin="5"
+            VerticalAlignment="Stretch"
+            Orientation="Horizontal">
+            <Button
+                Padding="5"
+                Command="{Binding RCRWPathCommand}"
+                Content="Путь к r-crw" />
+        </StackPanel>
+    </Grid>
 </Window>
