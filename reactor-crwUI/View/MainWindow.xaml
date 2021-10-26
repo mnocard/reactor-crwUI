@@ -12,20 +12,52 @@
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <StackPanel Margin="5">
         <StackPanel
-            Grid.Row="0"
             Margin="5"
             VerticalAlignment="Stretch"
             Orientation="Horizontal">
             <Button
-                Padding="5"
+                Padding="5" Width="110"
                 Command="{Binding RCRWPathCommand}"
                 Content="Путь к r-crw" />
+            <Label
+                Padding="15,5,5,5"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Content="{Binding RCRWPath}" />
         </StackPanel>
-    </Grid>
+        <StackPanel
+            Margin="5"
+            VerticalAlignment="Stretch"
+            Orientation="Horizontal">
+            <Button
+                Padding="5" Width="110"
+                Command="{Binding OutputPathCommand}"
+                Content="Папка загрузки" />
+            <Label
+                Padding="15,5,5,5"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Content="{Binding OutputPath}" />
+        </StackPanel>
+        <DockPanel
+            Margin="5"
+            VerticalAlignment="Stretch"
+            LastChildFill="True">
+            <Label Content="Строка Cookies" />
+            <CheckBox
+                VerticalContentAlignment="Center"
+                IsChecked="{Binding CookiesAccepted}"
+                ToolTip="Необязательно" />
+            <TextBox
+                Margin="5,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Left"
+                VerticalContentAlignment="Center"
+                IsEnabled="{Binding CookiesAccepted}"
+                Text="{Binding CookiesData, UpdateSourceTrigger=PropertyChanged}" />
+        </DockPanel>
+    </StackPanel>
 </Window>
