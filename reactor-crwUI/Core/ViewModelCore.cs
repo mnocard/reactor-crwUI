@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace reactor_crwUI.Core
 {
-    internal abstract class ViewModelCore : INotifyPropertyChanged
+    abstract class ViewModelCore : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

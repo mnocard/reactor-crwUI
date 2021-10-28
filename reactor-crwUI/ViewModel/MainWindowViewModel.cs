@@ -5,12 +5,11 @@ using System.Windows.Input;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Text;
 
 namespace reactor_crwUI.ViewModel
 {
-    class MainWindowViewModel : ViewModelCore
+    internal class MainWindowViewModel : ViewModelCore
     {
         public MainWindowViewModel()
         {
