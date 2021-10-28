@@ -16,9 +16,11 @@
         <StackPanel
             Margin="5"
             VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
             Orientation="Horizontal">
             <Button
-                Padding="5" Width="110"
+                Width="110"
+                Padding="5"
                 Command="{Binding RCRWPathCommand}"
                 Content="Путь к r-crw" />
             <Label
@@ -30,9 +32,11 @@
         <StackPanel
             Margin="5"
             VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
             Orientation="Horizontal">
             <Button
-                Padding="5" Width="110"
+                Width="110"
+                Padding="5"
                 Command="{Binding OutputPathCommand}"
                 Content="Папка загрузки" />
             <Label
@@ -44,6 +48,21 @@
         <DockPanel
             Margin="5"
             VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
+            LastChildFill="True">
+            <Label Content="Адрес страницы" />
+            <TextBox
+                Margin="5,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Left"
+                VerticalContentAlignment="Center"
+                Text="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
+        </DockPanel>
+        <DockPanel
+            Margin="5"
+            VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
             LastChildFill="True">
             <Label Content="Строка Cookies" />
             <CheckBox
@@ -57,7 +76,57 @@
                 HorizontalContentAlignment="Left"
                 VerticalContentAlignment="Center"
                 IsEnabled="{Binding CookiesAccepted}"
-                Text="{Binding CookiesData, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding CookiesData, UpdateSourceTrigger=LostFocus}" />
         </DockPanel>
+        <StackPanel
+            Margin="5"
+            VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
+            Orientation="Horizontal">
+            <Label Content="Тип контента:" />
+            <CheckBox
+                Margin="5,0"
+                VerticalContentAlignment="Center"
+                Content="Изображение"
+                IsChecked="{Binding ImageCheckBox}" />
+            <CheckBox
+                Margin="5,0"
+                VerticalContentAlignment="Center"
+                Content="gif"
+                IsChecked="{Binding GifCheckBox}" />
+            <CheckBox
+                Margin="5,0"
+                VerticalContentAlignment="Center"
+                Content="webm"
+                IsChecked="{Binding WebmCheckBox}" />
+            <CheckBox
+                Margin="5,0"
+                VerticalContentAlignment="Center"
+                Content="mp4"
+                IsChecked="{Binding Mp4CheckBox}" />
+        </StackPanel>
+        <DockPanel
+            Margin="5"
+            VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
+            LastChildFill="false">
+            <Label Content="Загружать только одну страницу" />
+            <CheckBox
+                Margin="5,0"
+                VerticalContentAlignment="Center"
+                IsChecked="{Binding OnePage}" />
+            <Button
+                Padding="20,5"
+                Command="{Binding StartCrawlCommand}"
+                Content="Запуск"
+                DockPanel.Dock="Right" />
+        </DockPanel>
+        <StatusBar Background="White">
+            <TextBlock
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Text="{Binding Status}"
+                TextWrapping="Wrap" />
+        </StatusBar>
     </StackPanel>
 </Window>
