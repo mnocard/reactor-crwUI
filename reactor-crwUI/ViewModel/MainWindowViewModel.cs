@@ -236,6 +236,27 @@ namespace reactor_crwUI.ViewModel
         }
         #endregion
 
+        #region NumOfWorkers : int - Приоритет загрузки (workers)
+
+        /// <summary>Приоритет загрузки (workers)</summary>
+        private int _NumOfWorkers = 1;
+
+        /// <summary>Приоритет загрузки (workers)</summary>
+        public int NumOfWorkers
+        {
+            get => _NumOfWorkers;
+            set
+            {
+                if (value < 1)
+                    Set(ref _NumOfWorkers, 1);
+                else if (value > 4)
+                    Set(ref _NumOfWorkers, 4);
+                else
+                    Set(ref _NumOfWorkers, value);
+            }
+        }
+
+        #endregion
         #endregion
 
         #region Команды
@@ -305,6 +326,7 @@ namespace reactor_crwUI.ViewModel
             if (CorrectUrl && imgTypesSelected)
             {
                 var args = BuildArgForCrawler();
+                Status += "\n" + args;
             // TODO: Дописать запуск краулера после получения библиотеки
             }
         }
@@ -352,7 +374,9 @@ namespace reactor_crwUI.ViewModel
                 .Append(" -s ")
                 .Append("\"")
                 .Append(imgTypes)
-                .Append("\"");
+                .Append("\"")
+                .Append(" -w ")
+                .Append(NumOfWorkers);
 
             if (!string.IsNullOrEmpty(OutputPath))
                 str.Append(" -d ")

@@ -120,6 +120,17 @@
                 Command="{Binding StartCrawlCommand}"
                 Content="Запуск"
                 DockPanel.Dock="Right" />
+            <Label Content="Приоритет загрузки:" />
+            <Label Width="30" Content="{Binding NumOfWorkers}" />
+            <Slider
+                Width="100"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Maximum="4"
+                Minimum="1"
+                TickFrequency="1"
+                TickPlacement="BottomRight"
+                Value="{Binding NumOfWorkers}" />
         </DockPanel>
         <StatusBar Background="White">
             <TextBlock
