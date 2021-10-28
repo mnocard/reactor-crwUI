@@ -41,9 +41,11 @@
             Orientation="Horizontal">
             <Button
                 Width="110"
-                Padding="5" FontSize="12"
+                Padding="5"
                 Command="{Binding OutputPathCommand}"
-                Content="Папка загрузки" />
+                Content="Папка загрузки"
+                FontSize="12"
+                ToolTip="Куда загружать контент" />
             <Label
                 Padding="15,5,5,5"
                 HorizontalAlignment="Left"
@@ -55,7 +57,7 @@
             VerticalAlignment="Stretch"
             DockPanel.Dock="Top"
             LastChildFill="True">
-            <Label Content="Адрес страницы" />
+            <Label Content="Адрес страницы" ToolTip="Отсюда будет скачиваться контент. Учитываются все страницы по указанному адресу, если не стоит флаг скачивания одной страницы" />
             <TextBox
                 Margin="5,0"
                 HorizontalAlignment="Stretch"
@@ -69,7 +71,7 @@
             VerticalAlignment="Stretch"
             DockPanel.Dock="Top"
             LastChildFill="True">
-            <Label Content="Строка Cookies" />
+            <Label Content="Строка Cookies" ToolTip="Необходима для скачивания легендарного контента. Должны иметь формат __utma=что-то; __utmz=что-то; _ga=что-то; и так далее" />
             <CheckBox
                 VerticalContentAlignment="Center"
                 IsChecked="{Binding CookiesAccepted}"
@@ -111,13 +113,14 @@
                 IsChecked="{Binding Mp4CheckBox}" />
         </StackPanel>
         <DockPanel
-            Margin="5, 0, 5, 5"
+            Margin="5,0,5,5"
             VerticalAlignment="Stretch"
             DockPanel.Dock="Top"
             LastChildFill="false">
-            <Label Content="Загружать только одну страницу" VerticalAlignment="Center"/>
+            <Label VerticalAlignment="Center" Content="Загружать только одну страницу" />
             <CheckBox
-                Margin="5,0" Height="30"
+                Height="30"
+                Margin="5,0"
                 VerticalContentAlignment="Center"
                 IsChecked="{Binding OnePage}" />
             <Button
@@ -125,17 +128,21 @@
                 Command="{Binding StartCrawlCommand}"
                 Content="Запуск"
                 DockPanel.Dock="Right" />
-            <Label Content="Приоритет загрузки:" VerticalAlignment="Center"/>
-            <Label Width="30" Content="{Binding NumOfWorkers}" VerticalAlignment="Center"/>
+            <Label VerticalAlignment="Center" Content="Приоритет загрузки:" />
+            <Label
+                Width="30"
+                VerticalAlignment="Center"
+                Content="{Binding NumOfWorkers}" />
             <Slider
-                Height="30"
                 Width="100"
+                Height="30"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Maximum="4"
                 Minimum="1"
                 TickFrequency="1"
                 TickPlacement="BottomRight"
+                ToolTip="Чем выше приоритет, тем больше нагрузка на сервер. Есть риск оказаться заблоченым на некоторое время."
                 Value="{Binding NumOfWorkers}" />
         </DockPanel>
         <StatusBar Background="Gray">
