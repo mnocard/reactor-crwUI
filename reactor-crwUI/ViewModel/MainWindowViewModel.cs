@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace reactor_crwUI.ViewModel
 {
@@ -326,7 +327,7 @@ namespace reactor_crwUI.ViewModel
             {
                 var args = BuildArgForCrawler();
                 Status += "\n" + args;
-            // TODO: Дописать запуск краулера после получения библиотеки
+                Process.Start("cmd", "/c START " + args);
             }
         }
         private bool CanStartCrawlCommandExecute(object parameter) => true;
@@ -366,7 +367,8 @@ namespace reactor_crwUI.ViewModel
             imgTypes.Remove(imgTypes.Length - 1, 1);
 
             str = str
-                .Append("-p ")
+                .Append(RCRWPath)
+                .Append(" -p ")
                 .Append("\"")
                 .Append(URL)
                 .Append("\"")

@@ -18,7 +18,7 @@
     TextOptions.TextRenderingMode="Auto"
     mc:Ignorable="d">
     <StackPanel Margin="5">
-        <!--<StackPanel
+        <StackPanel
             Margin="5"
             VerticalAlignment="Stretch"
             DockPanel.Dock="Top"
@@ -33,7 +33,7 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Content="{Binding RCRWPath}" />
-        </StackPanel>-->
+        </StackPanel>
         <StackPanel
             Margin="5"
             VerticalAlignment="Stretch"
