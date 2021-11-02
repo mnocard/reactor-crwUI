@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using reactor_crwUI.Services;
+using reactor_crwUI.Services.Interfaces;
 using reactor_crwUI.ViewModel;
 
 using System;
@@ -27,6 +29,7 @@ namespace reactor_crwUI
         private static void ConfigureServices(HostBuilderContext host, IServiceCollection services)
         {
             services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<IConfigService, ConfigService>();
         }
     }
 }
