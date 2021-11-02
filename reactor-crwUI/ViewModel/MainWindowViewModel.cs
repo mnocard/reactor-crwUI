@@ -1,23 +1,30 @@
-﻿using System.Windows.Forms;
-using reactor_crwUI.Core;
+﻿using reactor_crwUI.Core;
+using reactor_crwUI.Model;
+using reactor_crwUI.Services.Interfaces;
 
-using System.Windows.Input;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace reactor_crwUI.ViewModel
 {
     internal class MainWindowViewModel : ViewModelCore
     {
-        public MainWindowViewModel()
+        public MainWindowViewModel(IConfigService ConfigService)
         {
+            _ConfigService = ConfigService;
+
             #region Команды
             RCRWPathCommand = new LambdaCommand(OnRCRWPathCommandExecuted, CanRCRWPathCommandExecute);
             OutputPathCommand = new LambdaCommand(OnOutputPathCommandExecuted, CanOutputPathCommandExecute);
             StartCrawlCommand = new LambdaCommand(OnStartCrawlCommandExecuted, CanStartCrawlCommandExecute);
+            LoadConfigCommand = new LambdaCommand(OnLoadConfigCommandExecuted, CanLoadConfigCommandExecute);
+            SaveConfigCommand = new LambdaCommand(OnSaveConfigCommandExecuted, CanSaveConfigCommandExecute);
 
             #endregion
         }
@@ -139,12 +146,12 @@ namespace reactor_crwUI.ViewModel
         #region ImageTypes : Dictionary<string, bool> - Словарь форматов контента для поиска, где string - название формата, bool - необходимость его поиска
 
         /// <summary>Словарь форматов контента для поиска, где string - название формата, bool - необходимость его загрузки</summary>
-        private readonly Dictionary<string, bool> _ImageTypes = new()
+        public Dictionary<string, bool> _ImageTypes = new()
         {
-            {"image", true},
+            { "image", true },
             { "gif", true },
             { "webm", true },
-            { "mp4", true }
+            { "mp4", true },
         };
 
         #endregion
@@ -152,16 +159,13 @@ namespace reactor_crwUI.ViewModel
         #region ImageCheckBox : bool - Выбирать изображения
 
         /// <summary>Выбирать изображения</summary>
-        private bool _ImageCheckBox = true;
-
-        /// <summary>Выбирать изображения</summary>
         public bool ImageCheckBox
         {
-            get => _ImageCheckBox;
+            get => _ImageTypes["image"];
             set
             {
-                if (Set(ref _ImageCheckBox, value))
-                    _ImageTypes["image"] = value;
+                _ImageTypes["image"] = value;
+                OnPropertyChanged();
             }
         }
         #endregion
@@ -169,53 +173,41 @@ namespace reactor_crwUI.ViewModel
         #region GifCheckBox : bool - Выбрать гифки
 
         /// <summary>Выбрать гифки</summary>
-        private bool _GifCheckBox = true;
-
-        /// <summary>Выбрать гифки</summary>
         public bool GifCheckBox
         {
-            get => _GifCheckBox;
+            get => _ImageTypes["gif"];
             set
             {
-                if (Set(ref _GifCheckBox, value))
-                    _ImageTypes["gif"] = value;
+                _ImageTypes["gif"] = value;
+                OnPropertyChanged();
             }
         }
 
         #endregion
 
         #region WebmCheckBox : bool - Выбрать webm
-
-        /// <summary>Выбрать webm</summary>
-        private bool _WebmCheckBox = true;
-
         /// <summary>Выбрать webm</summary>
         public bool WebmCheckBox
         {
-            get => _WebmCheckBox;
+            get => _ImageTypes["webm"];
             set
             {
-                if (Set(ref _WebmCheckBox, value))
-                    _ImageTypes["webm"] = value;
+                _ImageTypes["webm"] = value;
+                OnPropertyChanged();
             }
         }
 
         #endregion
 
         #region Mp4CheckBox : bool - Выбрать mp4
-
-        /// <summary>Выбрать mp4</summary>
-        private bool _Mp4CheckBox = true;
-
         /// <summary>Выбрать mp4</summary>
         public bool Mp4CheckBox
         {
-            get => _Mp4CheckBox;
+            get => _ImageTypes["mp4"];
             set
             {
-                if (Set(ref _Mp4CheckBox, value))
-                    _ImageTypes["mp4"] = value;
-
+                _ImageTypes["mp4"] = value;
+                OnPropertyChanged();
             }
         }
 
@@ -257,6 +249,7 @@ namespace reactor_crwUI.ViewModel
         }
 
         #endregion
+
         #endregion
 
         #region Команды
@@ -316,7 +309,7 @@ namespace reactor_crwUI.ViewModel
         {
             CorrectUrl = Uri.IsWellFormedUriString(URL, UriKind.Absolute);
             
-            var imgTypesSelected = _ImageTypes.Where(t => t.Value).Select(t => t.Value).FirstOrDefault();
+            var imgTypesSelected = _ImageTypes.Any(v => v.Value);
             if (!imgTypesSelected)
                 Status += _noItemsSelected;
 
@@ -334,6 +327,75 @@ namespace reactor_crwUI.ViewModel
 
         #endregion
 
+        #region Загрузка файла конфигурации
+        /// <summary>Загрузка файла конфигурации</summary>
+        public ICommand LoadConfigCommand { get; }
+        /// <summary>Загрузка файла конфигурации</summary>
+        private void OnLoadConfigCommandExecuted(object parameter)
+        {
+            try
+            {
+                var config = _ConfigService.LoadConfig();
+                if (config is not null)
+                {
+                    RCRWPath = config.RCRWPath;
+                    CookiesAccepted = config.CookiesAccepted;
+                    CookiesData = config.CookiesData;
+                    OutputPath = config.OutputPath;
+                    URL = config.URL;
+                    OnePage = config.OnePage;
+                    NumOfWorkers = config.NumOfWorkers;
+
+                    ImageCheckBox = config.ImageTypes["image"];
+                    WebmCheckBox = config.ImageTypes["webm"];
+                    GifCheckBox = config.ImageTypes["gif"];
+                    Mp4CheckBox = config.ImageTypes["mp4"];
+                }
+            }
+            catch (Exception ex)
+            {
+                Status = "Непредвиденная ошибка!\n" + ex.InnerException.Message;
+            }
+        }
+
+        private bool CanLoadConfigCommandExecute(object parameter) => true;
+
+        #endregion
+
+        #region Сохранение файла конфигурации
+        /// <summary>Сохранение файла конфигурации</summary>
+        public ICommand SaveConfigCommand { get; }
+        /// <summary>Сохранение файла конфигурации</summary>
+        private void OnSaveConfigCommandExecuted(object parameter)
+        {
+            Config config = new()
+            {
+                RCRWPath = RCRWPath,
+                CookiesAccepted = CookiesAccepted,
+                CookiesData = CookiesData,
+                OutputPath = OutputPath,
+                URL = URL,
+                OnePage = OnePage,
+                NumOfWorkers = NumOfWorkers,
+                ImageTypes = new (_ImageTypes),
+            };
+
+            try
+            {
+                var result = _ConfigService.SaveConfig(config);
+                if (result) Status = "Настройки успешно сохранены.";
+                else Status = "Что-то пошло не так.";
+            }
+            catch (Exception ex)
+            {
+                Status = "Непредвиденная ошибка!\n" + ex.InnerException.Message;
+            }
+        }
+
+        private bool CanSaveConfigCommandExecute(object parameter) => true;
+
+        #endregion
+
         #endregion
 
         #region Константы
@@ -343,6 +405,10 @@ namespace reactor_crwUI.ViewModel
         private const string _chooseDestinationFolderMessage = "Выберите папку, в которую будет загружен контент";
         private const string _noItemsSelected = "\nНе выбрано ни одного типа контента.";
 
+        #endregion
+
+        #region Сервисы
+        private readonly IConfigService _ConfigService;
         #endregion
 
         #region Приватные методы
@@ -356,13 +422,11 @@ namespace reactor_crwUI.ViewModel
             string args = string.Empty;
             var str = new StringBuilder();
             var imgTypes = new StringBuilder();
-            foreach (var item in _ImageTypes)
+
+            foreach (var item in _ImageTypes.Where(v => v.Value))
             {
-                if (item.Value)
-                {
-                    imgTypes.Append(item.Key);
-                    imgTypes.Append(",");
-                }
+                imgTypes.Append(item.Key);
+                imgTypes.Append(",");
             }
             imgTypes.Remove(imgTypes.Length - 1, 1);
 
