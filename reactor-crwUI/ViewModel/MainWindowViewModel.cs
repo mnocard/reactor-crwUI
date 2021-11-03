@@ -34,7 +34,7 @@ namespace reactor_crwUI.ViewModel
         #region Title : string - Заголовок окна
 
         /// <summary>Заголовок окна</summary>
-        private string _Title = "reactor_crwUI";
+        private string _Title = _recator_crwUI;
 
         /// <summary>Заголовок окна</summary>
         public string Title
@@ -148,10 +148,10 @@ namespace reactor_crwUI.ViewModel
         /// <summary>Словарь форматов контента для поиска, где string - название формата, bool - необходимость его загрузки</summary>
         public Dictionary<string, bool> _ImageTypes = new()
         {
-            { "image", true },
-            { "gif", true },
-            { "webm", true },
-            { "mp4", true },
+            { _image, true },
+            { _gif, true },
+            { _webm, true },
+            { _mp4, true },
         };
 
         #endregion
@@ -161,10 +161,10 @@ namespace reactor_crwUI.ViewModel
         /// <summary>Выбирать изображения</summary>
         public bool ImageCheckBox
         {
-            get => _ImageTypes["image"];
+            get => _ImageTypes[_image];
             set
             {
-                _ImageTypes["image"] = value;
+                _ImageTypes[_image] = value;
                 OnPropertyChanged();
             }
         }
@@ -175,10 +175,10 @@ namespace reactor_crwUI.ViewModel
         /// <summary>Выбрать гифки</summary>
         public bool GifCheckBox
         {
-            get => _ImageTypes["gif"];
+            get => _ImageTypes[_gif];
             set
             {
-                _ImageTypes["gif"] = value;
+                _ImageTypes[_gif] = value;
                 OnPropertyChanged();
             }
         }
@@ -189,10 +189,10 @@ namespace reactor_crwUI.ViewModel
         /// <summary>Выбрать webm</summary>
         public bool WebmCheckBox
         {
-            get => _ImageTypes["webm"];
+            get => _ImageTypes[_webm];
             set
             {
-                _ImageTypes["webm"] = value;
+                _ImageTypes[_webm] = value;
                 OnPropertyChanged();
             }
         }
@@ -203,10 +203,10 @@ namespace reactor_crwUI.ViewModel
         /// <summary>Выбрать mp4</summary>
         public bool Mp4CheckBox
         {
-            get => _ImageTypes["mp4"];
+            get => _ImageTypes[_mp4];
             set
             {
-                _ImageTypes["mp4"] = value;
+                _ImageTypes[_mp4] = value;
                 OnPropertyChanged();
             }
         }
@@ -290,7 +290,7 @@ namespace reactor_crwUI.ViewModel
                 dialog.AutoUpgradeEnabled = true;
                 dialog.UseDescriptionForTitle = true;
                 var result = dialog.ShowDialog();
-                if(result is DialogResult.OK)
+                if (result is DialogResult.OK)
                 {
                     OutputPath = dialog.SelectedPath;
                 }
@@ -308,7 +308,7 @@ namespace reactor_crwUI.ViewModel
         private void OnStartCrawlCommandExecuted(object parameter)
         {
             CorrectUrl = Uri.IsWellFormedUriString(URL, UriKind.Absolute);
-            
+
             var imgTypesSelected = _ImageTypes.Any(v => v.Value);
             if (!imgTypesSelected)
                 Status += _noItemsSelected;
@@ -346,15 +346,15 @@ namespace reactor_crwUI.ViewModel
                     OnePage = config.OnePage;
                     NumOfWorkers = config.NumOfWorkers;
 
-                    ImageCheckBox = config.ImageTypes["image"];
-                    WebmCheckBox = config.ImageTypes["webm"];
-                    GifCheckBox = config.ImageTypes["gif"];
-                    Mp4CheckBox = config.ImageTypes["mp4"];
+                    ImageCheckBox = config.ImageTypes[_image];
+                    WebmCheckBox = config.ImageTypes[_webm];
+                    GifCheckBox = config.ImageTypes[_gif];
+                    Mp4CheckBox = config.ImageTypes[_mp4];
                 }
             }
             catch (Exception ex)
             {
-                Status = "Непредвиденная ошибка!\n" + ex.InnerException.Message;
+                Status = _unexpectedError + ex.InnerException.Message;
             }
         }
 
@@ -377,18 +377,18 @@ namespace reactor_crwUI.ViewModel
                 URL = URL,
                 OnePage = OnePage,
                 NumOfWorkers = NumOfWorkers,
-                ImageTypes = new (_ImageTypes),
+                ImageTypes = new(_ImageTypes),
             };
 
             try
             {
                 var result = _ConfigService.SaveConfig(config);
-                if (result) Status = "Настройки успешно сохранены.";
-                else Status = "Что-то пошло не так.";
+                if (result) Status = _configSaved;
+                else Status = _somethingWrong;
             }
             catch (Exception ex)
             {
-                Status = "Непредвиденная ошибка!\n" + ex.InnerException.Message;
+                Status = _unexpectedError + ex.InnerException.Message;
             }
         }
 
@@ -404,6 +404,26 @@ namespace reactor_crwUI.ViewModel
         private const string _uriErrorMessage = "\nОшибка в адресе сайта.";
         private const string _chooseDestinationFolderMessage = "Выберите папку, в которую будет загружен контент";
         private const string _noItemsSelected = "\nНе выбрано ни одного типа контента.";
+        private const string _configSaved = "Настройки успешно сохранены.";
+        private const string _somethingWrong = "Что-то пошло не так.";
+        private const string _unexpectedError = "Непредвиденная ошибка!\n";
+        private const string _image = "image";
+        private const string _webm = "webm";
+        private const string _gif = "gif";
+        private const string _mp4 = "mp4";
+        private const string _recator_crwUI = "_recator_crwUI";
+
+        #region Константы для StringBuilder
+        private const char _quotation = '"';
+        private const char _comma = ',';
+        private const string _p = " -p ";
+        private const string _s = " -s ";
+        private const string _w = " -w ";
+        private const string _d = " -d ";
+        private const string _c = " -c ";
+        private const string _o = " -o ";
+
+        #endregion
 
         #endregion
 
@@ -426,37 +446,36 @@ namespace reactor_crwUI.ViewModel
             foreach (var item in _ImageTypes.Where(v => v.Value))
             {
                 imgTypes.Append(item.Key);
-                imgTypes.Append(",");
+                imgTypes.Append(_comma);
             }
             imgTypes.Remove(imgTypes.Length - 1, 1);
 
-            str = str
-                .Append(RCRWPath)
-                .Append(" -p ")
-                .Append("\"")
-                .Append(URL)
-                .Append("\"")
-                .Append(" -s ")
-                .Append("\"")
-                .Append(imgTypes)
-                .Append("\"")
-                .Append(" -w ")
-                .Append(NumOfWorkers);
+            str.Append(RCRWPath)
+               .Append(_p)
+               .Append(_quotation)
+               .Append(URL)
+               .Append(_quotation)
+               .Append(_s)
+               .Append(_quotation)
+               .Append(imgTypes)
+               .Append(_quotation)
+               .Append(_w)
+               .Append(NumOfWorkers);
 
             if (!string.IsNullOrEmpty(OutputPath))
-                str.Append(" -d ")
-                .Append("\"")
-                .Append(OutputPath)
-                .Append("\"");
+                str.Append(_d)
+                   .Append(_quotation)
+                   .Append(OutputPath)
+                   .Append(_quotation);
 
             if (CookiesAccepted && !string.IsNullOrEmpty(CookiesData))
-                str.Append(" -c ")
-                .Append("\"")
-                .Append(CookiesData)
-                .Append("\"");
+                str.Append(_c)
+                   .Append(_quotation)
+                   .Append(CookiesData)
+                   .Append(_quotation);
 
             if (OnePage)
-                str.Append(" -o ");
+                str.Append(_o);
 
             return str.ToString();
         }

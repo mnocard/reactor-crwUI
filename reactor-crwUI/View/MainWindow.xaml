@@ -137,7 +137,10 @@
                 Command="{Binding StartCrawlCommand}"
                 Content="Запуск"
                 DockPanel.Dock="Right" />
-            <Label VerticalAlignment="Center" Content="Приоритет загрузки:" />
+            <Label
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                Content="Приоритет загрузки:" />
             <Label
                 Width="30"
                 VerticalAlignment="Center"
