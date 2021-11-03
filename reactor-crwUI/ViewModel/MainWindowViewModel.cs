@@ -260,15 +260,14 @@ namespace reactor_crwUI.ViewModel
         /// <summary>Указание расположения reactor-crw</summary>
         private void OnRCRWPathCommandExecuted(object parameter)
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.DefaultExt = _defExt;
-            dlg.Filter = _dlgFilter;
-            var result = dlg.ShowDialog();
-
-            if (result == true)
+            var dlg = new Microsoft.Win32.OpenFileDialog
             {
+                DefaultExt = _defExt,
+                Filter = _dlgFilter
+            };
+
+            if (dlg.ShowDialog() is true)
                 RCRWPath = dlg.FileName;
-            }
         }
 
         private bool CanRCRWPathCommandExecute(object parameter) => true;
@@ -283,18 +282,16 @@ namespace reactor_crwUI.ViewModel
         /// <summary>Указание расположения загрузки контента</summary>
         private void OnOutputPathCommandExecuted(object parameter)
         {
-            using (var dialog = new FolderBrowserDialog())
+            using var dialog = new FolderBrowserDialog()
             {
-                dialog.Description = _chooseDestinationFolderMessage;
-                dialog.ShowNewFolderButton = true;
-                dialog.AutoUpgradeEnabled = true;
-                dialog.UseDescriptionForTitle = true;
-                var result = dialog.ShowDialog();
-                if (result is DialogResult.OK)
-                {
-                    OutputPath = dialog.SelectedPath;
-                }
-            }
+                Description = _chooseDestinationFolderMessage,
+                ShowNewFolderButton = true,
+                AutoUpgradeEnabled = true,
+                UseDescriptionForTitle = true,
+            };
+
+            if (dialog.ShowDialog() is DialogResult.OK)
+                OutputPath = dialog.SelectedPath;
         }
         private bool CanOutputPathCommandExecute(object parameter) => true;
 
@@ -382,9 +379,10 @@ namespace reactor_crwUI.ViewModel
 
             try
             {
-                var result = _ConfigService.SaveConfig(config);
-                if (result) Status = _configSaved;
-                else Status = _somethingWrong;
+                if (_ConfigService.SaveConfig(config)) 
+                    Status = _configSaved;
+                else 
+                    Status = _somethingWrong;
             }
             catch (Exception ex)
             {
