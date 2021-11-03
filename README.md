@@ -7,5 +7,6 @@ WPF оболочка для проекта https://github.com/reactor-joy/reacto
 Остальные настройки соответствуют аргументам парсера. Единственное, отличие аттрибут "workers" переименован в "приоритет загрузки" и установлено максимальное ограничение в 4 единицы.
 
 <p>
-    <img src="http://img2.joyreactor.cc/pics/diy/1635533525597072" width="800" alt="reactor_crawlerUI">
+    <img src="http://img2.joyreactor.cc/pics/post/full/reactor-crw-%D0%BF%D0%B0%D1%80%D1%81%D0%B5%D1%80-gui-6995451.png" width="800" alt="reactor_crawlerUI">
+    
 </p>
