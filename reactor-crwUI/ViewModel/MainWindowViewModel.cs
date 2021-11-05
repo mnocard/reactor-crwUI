@@ -330,6 +330,9 @@ namespace reactor_crwUI.ViewModel
             if (!CorrectUrl)
                 Status += _uriErrorMessage;
 
+            if (string.IsNullOrWhiteSpace(RCRWPath))
+                Status += _RCRWPathIncorrect;
+
             if (CorrectUrl && imgTypesSelected)
             {
                 var args = BuildArgForCrawler();
@@ -427,6 +430,7 @@ namespace reactor_crwUI.ViewModel
         private const string _gif = "gif";
         private const string _mp4 = "mp4";
         private const string _recator_crwUI = "_recator_crwUI";
+        private const string _RCRWPathIncorrect = "Укажите полный путь к парсеру";
         
         #region Константы для StringBuilder
         private const char _quotation = '"';
