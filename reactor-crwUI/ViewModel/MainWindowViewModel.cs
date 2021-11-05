@@ -2,6 +2,8 @@
 using reactor_crwUI.Model;
 using reactor_crwUI.Services.Interfaces;
 
+using Serilog;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,6 +27,7 @@ namespace reactor_crwUI.ViewModel
             StartCrawlCommand = new LambdaCommand(OnStartCrawlCommandExecuted, CanStartCrawlCommandExecute);
             LoadConfigCommand = new LambdaCommand(OnLoadConfigCommandExecuted, CanLoadConfigCommandExecute);
             SaveConfigCommand = new LambdaCommand(OnSaveConfigCommandExecuted, CanSaveConfigCommandExecute);
+            ClosingAppCommand = new LambdaCommand(OnClosingAppCommandExecuted, CanClosingAppCommandExecute);
 
             #endregion
         }
@@ -254,6 +257,20 @@ namespace reactor_crwUI.ViewModel
 
         #region Команды
 
+        #region Закрытие приложения
+        /// <summary>Закрытие приложения</summary>
+        public ICommand ClosingAppCommand { get; }
+        /// <summary>Закрытие приложения</summary>
+        private void OnClosingAppCommandExecuted(object parameter)
+        {
+            _log.Information("Закрытие программы.");
+            Log.CloseAndFlush();
+        }
+
+        private bool CanClosingAppCommandExecute(object parameter) => true;
+
+        #endregion
+
         #region Указание расположения reactor-crw
         /// <summary>Указание расположения reactor-crw</summary>
         public ICommand RCRWPathCommand { get; }
@@ -410,7 +427,7 @@ namespace reactor_crwUI.ViewModel
         private const string _gif = "gif";
         private const string _mp4 = "mp4";
         private const string _recator_crwUI = "_recator_crwUI";
-
+        
         #region Константы для StringBuilder
         private const char _quotation = '"';
         private const char _comma = ',';
@@ -427,6 +444,7 @@ namespace reactor_crwUI.ViewModel
 
         #region Сервисы
         private readonly IConfigService _ConfigService;
+        private readonly ILogger _log = Log.ForContext<MainWindowViewModel>();
         #endregion
 
         #region Приватные методы
