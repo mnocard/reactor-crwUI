@@ -5,7 +5,6 @@ namespace reactor_crwUI.Model
     public class Config
     {
         public string RCRWPath { get; set; }
-        public bool CookiesAccepted { get; set; }
         public string CookiesData { get; set; }
         public string OutputPath { get; set; }
         public string URL { get; set; }

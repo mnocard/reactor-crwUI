@@ -18,11 +18,21 @@
     TextOptions.TextRenderingMode="Auto"
     mc:Ignorable="d">
     <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding AppStartCommand}" />
+        </i:EventTrigger>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding ClosingAppCommand, Mode=OneTime}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <StackPanel Margin="5">
+        <Grid Margin="5">
+            <TextBox
+                Padding="15,5,5,5"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Text="{Binding Result, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
         <DockPanel
             Margin="5"
             VerticalAlignment="Stretch"
@@ -79,25 +89,51 @@
                 VerticalAlignment="Center"
                 HorizontalContentAlignment="Left"
                 VerticalContentAlignment="Center"
-                Text="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding URL, UpdateSourceTrigger=LostFocus}" />
         </DockPanel>
         <DockPanel
             Margin="5"
             VerticalAlignment="Stretch"
             DockPanel.Dock="Top"
             LastChildFill="True">
-            <Label Content="Строка Cookies" ToolTip="Необходима для скачивания легендарного контента. Должны иметь формат __utma=что-то; __utmz=что-то; _ga=что-то; и так далее" />
-            <CheckBox
-                VerticalContentAlignment="Center"
-                IsChecked="{Binding CookiesAccepted}"
-                ToolTip="Необязательно" />
+            <Label Width="100" Content="http прокси" />
             <TextBox
                 Margin="5,0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 HorizontalContentAlignment="Left"
                 VerticalContentAlignment="Center"
-                IsEnabled="{Binding CookiesAccepted}"
+                Text="{Binding Proxy, UpdateSourceTrigger=LostFocus}" />
+        </DockPanel>
+        <DockPanel
+            Margin="5"
+            VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
+            LastChildFill="True">
+            <Label Width="100" Content="soks5" />
+            <TextBox
+                Margin="5,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Left"
+                VerticalContentAlignment="Center"
+                Text="{Binding Socks5, UpdateSourceTrigger=LostFocus}" />
+        </DockPanel>
+        <DockPanel
+            Margin="5"
+            VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
+            LastChildFill="True">
+            <Label
+                Width="100"
+                Content="Строка Cookies"
+                ToolTip="Необходима для скачивания легендарного контента. Должны иметь формат __utma=что-то; __utmz=что-то; _ga=что-то; и так далее" />
+            <TextBox
+                Margin="5,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Left"
+                VerticalContentAlignment="Center"
                 Text="{Binding CookiesData, UpdateSourceTrigger=LostFocus}" />
         </DockPanel>
         <StackPanel

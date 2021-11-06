@@ -1,4 +1,7 @@
-﻿using reactor_crwUI.Core;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+
+using reactor_crwUI.Core;
 using reactor_crwUI.Model;
 using reactor_crwUI.Services.Interfaces;
 
@@ -27,6 +30,7 @@ namespace reactor_crwUI.ViewModel
             StartCrawlCommand = new LambdaCommand(OnStartCrawlCommandExecuted, CanStartCrawlCommandExecute);
             LoadConfigCommand = new LambdaCommand(OnLoadConfigCommandExecuted, CanLoadConfigCommandExecute);
             SaveConfigCommand = new LambdaCommand(OnSaveConfigCommandExecuted, CanSaveConfigCommandExecute);
+            AppStartCommand = new LambdaCommand(OnAppStartCommandExecuted, CanAppStartCommandExecute);
             ClosingAppCommand = new LambdaCommand(OnClosingAppCommandExecuted, CanClosingAppCommandExecute);
 
             #endregion
@@ -62,20 +66,6 @@ namespace reactor_crwUI.ViewModel
 
         #endregion
 
-        #region CookiesAccepted : bool - Использовать печеньки
-
-        /// <summary>Использовать печеньки</summary>
-        private bool _CookiesAccepted = false;
-
-        /// <summary>Использовать печеньки</summary>
-        public bool CookiesAccepted
-        {
-            get => _CookiesAccepted;
-            set => Set(ref _CookiesAccepted, value);
-        }
-
-        #endregion
-
         #region CookiesData : string - Собственно печенька
 
         /// <summary>Собственно печенька</summary>
@@ -85,7 +75,11 @@ namespace reactor_crwUI.ViewModel
         public string CookiesData
         {
             get => _CookiesData;
-            set => Set(ref _CookiesData, value);
+            set
+            {
+                Set(ref _CookiesData, value);
+                Result = BuildArgForCrawler();
+            }
         }
 
         #endregion
@@ -112,7 +106,11 @@ namespace reactor_crwUI.ViewModel
         public string URL
         {
             get => _URL;
-            set => Set(ref _URL, value);
+            set
+            {
+                Set(ref _URL, value);
+                Result = BuildArgForCrawler();
+            }
         }
 
         #endregion
@@ -168,6 +166,7 @@ namespace reactor_crwUI.ViewModel
             set
             {
                 _ImageTypes[_image] = value;
+                Result = BuildArgForCrawler();
                 OnPropertyChanged();
             }
         }
@@ -182,6 +181,7 @@ namespace reactor_crwUI.ViewModel
             set
             {
                 _ImageTypes[_gif] = value;
+                Result = BuildArgForCrawler();
                 OnPropertyChanged();
             }
         }
@@ -196,6 +196,7 @@ namespace reactor_crwUI.ViewModel
             set
             {
                 _ImageTypes[_webm] = value;
+                Result = BuildArgForCrawler();
                 OnPropertyChanged();
             }
         }
@@ -210,6 +211,7 @@ namespace reactor_crwUI.ViewModel
             set
             {
                 _ImageTypes[_mp4] = value;
+                Result = BuildArgForCrawler();
                 OnPropertyChanged();
             }
         }
@@ -227,7 +229,11 @@ namespace reactor_crwUI.ViewModel
         public bool OnePage
         {
             get => _OnePage;
-            set => Set(ref _OnePage, value);
+            set
+            {
+                Set(ref _OnePage, value);
+                Result = BuildArgForCrawler();
+            }
         }
         #endregion
 
@@ -248,7 +254,58 @@ namespace reactor_crwUI.ViewModel
                     Set(ref _NumOfWorkers, 4);
                 else
                     Set(ref _NumOfWorkers, value);
+                Result = BuildArgForCrawler();
             }
+        }
+
+        #endregion
+
+        #region Socks5 : string - Socks5
+
+        /// <summary>Socks5</summary>
+        private string _Socks5;
+
+        /// <summary>Socks5</summary>
+        public string Socks5
+        {
+            get => _Socks5;
+            set 
+            {
+                Set(ref _Socks5, value);
+                Result = BuildArgForCrawler();
+            }
+        }
+
+        #endregion
+
+        #region Proxy : string - Прокси
+
+        /// <summary>Прокси</summary>
+        private string _Proxy;
+
+        /// <summary>Прокси</summary>
+        public string Proxy
+        {
+            get => _Proxy;
+            set 
+            {
+                Set(ref _Proxy, value);
+                Result = BuildArgForCrawler();
+            }
+        }
+
+        #endregion
+
+        #region Result : string - Итоговая получившая строка, которая будет передана в парсер в качестве атрибута
+
+        /// <summary>Итоговая получившая строка, которая будет передана в парсер в качестве атрибута</summary>
+        private string _Result;
+
+        /// <summary>Итоговая получившая строка, которая будет передана в парсер в качестве атрибута</summary>
+        public string Result
+        {
+            get => _Result;
+            set => Set(ref _Result, value);
         }
 
         #endregion
@@ -257,6 +314,19 @@ namespace reactor_crwUI.ViewModel
 
         #region Команды
 
+        #region Запуск программы
+        /// <summary>Запуск программы</summary>
+        public ICommand AppStartCommand { get; }
+        /// <summary>Запуск программы</summary>
+        private void OnAppStartCommandExecuted(object parameter)
+        {
+            _log.Information("Запуск программы.");
+        }
+
+        private bool CanAppStartCommandExecute(object parameter) => true;
+
+        #endregion
+        
         #region Закрытие приложения
         /// <summary>Закрытие приложения</summary>
         public ICommand ClosingAppCommand { get; }
@@ -284,7 +354,11 @@ namespace reactor_crwUI.ViewModel
             };
 
             if (dlg.ShowDialog() is true)
+            {
                 RCRWPath = dlg.FileName;
+                Result = BuildArgForCrawler();
+                _log.Information("Указан путь к парсеру: {0}", RCRWPath);
+            }
         }
 
         private bool CanRCRWPathCommandExecute(object parameter) => true;
@@ -308,7 +382,11 @@ namespace reactor_crwUI.ViewModel
             };
 
             if (dialog.ShowDialog() is DialogResult.OK)
+            {
                 OutputPath = dialog.SelectedPath;
+                Result = BuildArgForCrawler();
+                _log.Information("Указан путь загрузки контента: {0}", OutputPath);
+            }
         }
         private bool CanOutputPathCommandExecute(object parameter) => true;
 
@@ -324,20 +402,19 @@ namespace reactor_crwUI.ViewModel
             CorrectUrl = Uri.IsWellFormedUriString(URL, UriKind.Absolute);
 
             var imgTypesSelected = _ImageTypes.Any(v => v.Value);
+
             if (!imgTypesSelected)
-                Status += _noItemsSelected;
-
-            if (!CorrectUrl)
-                Status += _uriErrorMessage;
-
-            if (string.IsNullOrWhiteSpace(RCRWPath))
-                Status += _RCRWPathIncorrect;
-
-            if (CorrectUrl && imgTypesSelected)
+                Status = _noItemsSelected;
+            else if (!CorrectUrl)
+                Status = _uriErrorMessage;
+            else if (string.IsNullOrWhiteSpace(RCRWPath))
+                Status = _RCRWPathIncorrect;
+            else
             {
-                var args = BuildArgForCrawler();
-                Status += "\n" + args;
-                Process.Start("cmd", "/c START " + args);
+                Result = BuildArgForCrawler();
+                Status = $"Попытка запуска парсера с аргументом: {Result}";
+                Process.Start("cmd", "/c START " + Result);
+                _log.Information(Status);
             }
         }
         private bool CanStartCrawlCommandExecute(object parameter) => true;
@@ -356,7 +433,6 @@ namespace reactor_crwUI.ViewModel
                 if (config is not null)
                 {
                     RCRWPath = config.RCRWPath;
-                    CookiesAccepted = config.CookiesAccepted;
                     CookiesData = config.CookiesData;
                     OutputPath = config.OutputPath;
                     URL = config.URL;
@@ -367,11 +443,14 @@ namespace reactor_crwUI.ViewModel
                     WebmCheckBox = config.ImageTypes[_webm];
                     GifCheckBox = config.ImageTypes[_gif];
                     Mp4CheckBox = config.ImageTypes[_mp4];
+
+                    _log.Information("Загрузка файла конфигурации.");
                 }
             }
             catch (Exception ex)
             {
                 Status = _unexpectedError + ex.InnerException.Message;
+                _log.Error(ex, "Не удалось загрузить файл конфигурации:");
             }
         }
 
@@ -388,7 +467,6 @@ namespace reactor_crwUI.ViewModel
             Config config = new()
             {
                 RCRWPath = RCRWPath,
-                CookiesAccepted = CookiesAccepted,
                 CookiesData = CookiesData,
                 OutputPath = OutputPath,
                 URL = URL,
@@ -403,10 +481,12 @@ namespace reactor_crwUI.ViewModel
                     Status = _configSaved;
                 else 
                     Status = _somethingWrong;
+                _log.Information("Попытка сохранения файла конфигурации: {0}", Status);
             }
             catch (Exception ex)
             {
                 Status = _unexpectedError + ex.InnerException.Message;
+                _log.Error(ex, "Не удалось загрузить файл конфигурации.");
             }
         }
 
@@ -419,9 +499,9 @@ namespace reactor_crwUI.ViewModel
         #region Константы
         private const string _defExt = ".exe";
         private const string _dlgFilter = "Исполняемые файлы (.exe)|*.exe";
-        private const string _uriErrorMessage = "\nОшибка в адресе сайта.";
+        private const string _uriErrorMessage = "Ошибка в адресе сайта.";
         private const string _chooseDestinationFolderMessage = "Выберите папку, в которую будет загружен контент";
-        private const string _noItemsSelected = "\nНе выбрано ни одного типа контента.";
+        private const string _noItemsSelected = "Не выбрано ни одного типа контента.";
         private const string _configSaved = "Настройки успешно сохранены.";
         private const string _somethingWrong = "Что-то пошло не так.";
         private const string _unexpectedError = "Непредвиденная ошибка!\n";
@@ -441,6 +521,8 @@ namespace reactor_crwUI.ViewModel
         private const string _d = " -d ";
         private const string _c = " -c ";
         private const string _o = " -o ";
+        private const string _proxyConst = " --proxy ";
+        private const string _socksConst = " --socks5 ";
 
         #endregion
 
@@ -461,41 +543,62 @@ namespace reactor_crwUI.ViewModel
         {
             string args = string.Empty;
             var str = new StringBuilder();
-            var imgTypes = new StringBuilder();
 
-            foreach (var item in _ImageTypes.Where(v => v.Value))
+            if (!string.IsNullOrWhiteSpace(RCRWPath))
+                str.Append(RCRWPath);
+
+            if (!string.IsNullOrWhiteSpace(URL))
+                str.Append(_p)
+                   .Append(_quotation)
+                   .Append(URL)
+                   .Append(_quotation);
+
+            if (_ImageTypes.Any(v => v.Value))
             {
-                imgTypes.Append(item.Key);
-                imgTypes.Append(_comma);
+                var imgTypes = new StringBuilder();
+
+                foreach (var item in _ImageTypes.Where(v => v.Value))
+                {
+                    imgTypes.Append(item.Key);
+                    imgTypes.Append(_comma);
+                }
+                imgTypes.Remove(imgTypes.Length - 1, 1);
+
+                str.Append(_s)
+                   .Append(_quotation)
+                   .Append(imgTypes)
+                   .Append(_quotation);
             }
-            imgTypes.Remove(imgTypes.Length - 1, 1);
 
-            str.Append(RCRWPath)
-               .Append(_p)
-               .Append(_quotation)
-               .Append(URL)
-               .Append(_quotation)
-               .Append(_s)
-               .Append(_quotation)
-               .Append(imgTypes)
-               .Append(_quotation)
-               .Append(_w)
-               .Append(NumOfWorkers);
-
-            if (!string.IsNullOrEmpty(OutputPath))
+            if (!string.IsNullOrWhiteSpace(OutputPath))
                 str.Append(_d)
                    .Append(_quotation)
                    .Append(OutputPath)
                    .Append(_quotation);
 
-            if (CookiesAccepted && !string.IsNullOrEmpty(CookiesData))
+            if (!string.IsNullOrWhiteSpace(CookiesData))
                 str.Append(_c)
                    .Append(_quotation)
                    .Append(CookiesData)
                    .Append(_quotation);
 
+            if (!string.IsNullOrWhiteSpace(Proxy))
+                str.Append(_proxyConst)
+                   .Append(_quotation)
+                   .Append(Proxy)
+                   .Append(_quotation);
+
+            if (!string.IsNullOrWhiteSpace(Socks5))
+                str.Append(_socksConst)
+                   .Append(_quotation)
+                   .Append(Socks5)
+                   .Append(_quotation);
+
             if (OnePage)
                 str.Append(_o);
+
+            str.Append(_w)
+                .Append(NumOfWorkers);
 
             return str.ToString();
         }
