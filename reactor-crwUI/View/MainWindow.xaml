@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
     Title="{Binding Title}"
     Width="800"
     Height="450"
@@ -26,13 +27,23 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <StackPanel Margin="5">
-        <Grid Margin="5">
+        <DockPanel Margin="5" LastChildFill="True">
+            <Label Content="API" DockPanel.Dock="Right" />
+            <ToggleButton
+                md:ToggleButtonAssist.SwitchTrackOffBackground="White"
+                md:ToggleButtonAssist.SwitchTrackOnBackground="Orange"
+                DockPanel.Dock="Right"
+                IsChecked="{Binding ToggleHtmlAPI}" />
+            <Label
+                Margin="5,0"
+                Content="Парсер: HTML"
+                DockPanel.Dock="Right" />
             <TextBox
                 Padding="15,5,5,5"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Text="{Binding Result, UpdateSourceTrigger=PropertyChanged}" />
-        </Grid>
+        </DockPanel>
         <DockPanel
             Margin="5"
             VerticalAlignment="Stretch"
@@ -82,14 +93,14 @@
             VerticalAlignment="Stretch"
             DockPanel.Dock="Top"
             LastChildFill="True">
-            <Label Content="Адрес страницы" ToolTip="Отсюда будет скачиваться контент. Учитываются все страницы по указанному адресу, если не стоит флаг скачивания одной страницы" />
+            <Label Content="{Binding LabelTagOrURL}" ToolTip="Адрес или тег, с котрого выгружается контент." />
             <TextBox
                 Margin="5,0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 HorizontalContentAlignment="Left"
                 VerticalContentAlignment="Center"
-                Text="{Binding URL, UpdateSourceTrigger=LostFocus}" />
+                Text="{Binding TagOrURL, UpdateSourceTrigger=LostFocus}" />
         </DockPanel>
         <DockPanel
             Margin="5"
@@ -168,17 +179,13 @@
             VerticalAlignment="Stretch"
             DockPanel.Dock="Top"
             LastChildFill="false">
-            <Label VerticalAlignment="Center" Content="Загружать только одну страницу" />
+            <Label VerticalAlignment="Center" Content="{Binding LabelOnePageOrNSWF}" />
             <CheckBox
                 Height="30"
                 Margin="5,0"
                 VerticalContentAlignment="Center"
-                IsChecked="{Binding OnePage}" />
-            <Button
-                Padding="20,5"
-                Command="{Binding StartCrawlCommand}"
-                Content="Запуск"
-                DockPanel.Dock="Right" />
+                IsChecked="{Binding OnePageOrNSWF}" />
+
             <Label
                 Margin="10,0,0,0"
                 VerticalAlignment="Center"
@@ -199,12 +206,42 @@
                 ToolTip="Чем выше приоритет, тем больше нагрузка на сервер. Есть риск оказаться заблоченым на некоторое время."
                 Value="{Binding NumOfWorkers}" />
         </DockPanel>
-        <StatusBar Background="Gray">
+        <DockPanel
+            Margin="5"
+            VerticalAlignment="Stretch"
+            DockPanel.Dock="Top"
+            IsEnabled="{Binding ToggleHtmlAPI}"
+            LastChildFill="False">
+            <Label Width="100" Content="Тип загрузки" />
+            <RadioButton
+                Margin="5,0"
+                Content="new"
+                GroupName="Type" />
+            <RadioButton
+                Margin="5,0"
+                Content="good"
+                GroupName="Type"
+                IsChecked="True" />
+            <RadioButton
+                Margin="5,0"
+                Content="best"
+                GroupName="Type" />
+            <RadioButton
+                Margin="5,0"
+                Content="all"
+                GroupName="Type" />
+        </DockPanel>
+        <DockPanel Background="Gray" LastChildFill="False">
             <TextBlock
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Text="{Binding Status}"
                 TextWrapping="Wrap" />
-        </StatusBar>
+            <Button
+                Padding="20,5"
+                Command="{Binding StartCrawlCommand}"
+                Content="Запуск"
+                DockPanel.Dock="Right" />
+        </DockPanel>
     </StackPanel>
 </Window>
