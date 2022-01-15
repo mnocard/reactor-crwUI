@@ -4,12 +4,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="130"
         x:Class="r_crwUI_A.Views.HelpWindow"
-        Title="HelpWindow">
+		DataContext="{Binding HWModel, Source={StaticResource Locator}}"
+        Title="{Binding Title}">
 	<Grid>
 		<TextBlock Margin="10"
 				   TextWrapping="Wrap"
 				   VerticalAlignment="Center"
 				   HorizontalAlignment="Center"
-				   Text="mnocard@gmail.com" />
+				   Text="{Binding Message}" />
 	</Grid>
 </Window>

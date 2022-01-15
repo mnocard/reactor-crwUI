@@ -25,7 +25,6 @@ namespace r_crwUI_A.ViewModels
         private readonly ILogger _Logger;
         #endregion
 
-
         public MainWindowViewModel(IConfigureProvider configureProvider, ILogger logger)
         {
             _Logger = logger;
@@ -33,7 +32,7 @@ namespace r_crwUI_A.ViewModels
             PropertyTransmitter.OnMessageTransmitted += BuildArg;
             PropertyTransmitter.OnDeleteEntity += DeleteProperty;
 
-            _Logger.WriteLog("INFO: Создание MainWindowViewModel");
+            _Logger.WriteLog(LogInfo + LogCreateVM);
         }
 
         #region Свойста
@@ -100,16 +99,17 @@ namespace r_crwUI_A.ViewModels
         {
             try
             {
-                _Logger.WriteLog("INFO");
+                _Logger.WriteLog(LogInfo);
                 var dialog = new OpenFileDialog
                 {
                     AllowMultiple = false,
-                    Title = _chooseDestinationFolderForLoad
+                    Title = ChooseDestinationFolderForLoad,
+                    InitialFileName = DateTime.Now.ToString(DateTimeFormat),
                 };
                 dialog.Filters.Add(new FileDialogFilter
                 {
-                    Extensions = new List<string> { _jsonExt },
-                    Name = _dlgJsonFilter,
+                    Extensions = new List<string> { JsonExt },
+                    Name = DlgJsonFilter,
                 });
 
                 var paths = await dialog.ShowAsync(new Window());
@@ -122,21 +122,22 @@ namespace r_crwUI_A.ViewModels
                         var dictionary = _ConfigureProvider.LoadDataFromJson<List<PropertyControlViewModel>>(path);
                         if (dictionary.Any())
                         {
-                            _Logger.WriteLog("INFO");
+                            _Logger.WriteLog(LogInfo);
                             VMDataContextList.Clear();
                             VMDataContextList.AddRange(dictionary);
                             UpdateAttributesList();
                             Status = string.Format(StatusSuccessfulUpload, Path.GetFileName(path));
-                            _Logger.WriteLog("DONE");
+                            _Logger.WriteLog(LogDone);
                         }
                     }
                 }
-                _Logger.WriteLog("DONE");
+                _Logger.WriteLog(LogDone);
             }
             catch (Exception e)
             {
-                _Logger.WriteLog("FATAL\n" + e.Message);
-                Status = StatusUnexpectedErrorInLoadProcess;
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
+                ShowExceprionMessage(e.Message);
             }
         }
 
@@ -148,7 +149,7 @@ namespace r_crwUI_A.ViewModels
         {
             try
             {
-                _Logger.WriteLog("INFO");
+                _Logger.WriteLog(LogInfo);
 
                 if (!UCPropertyList.Any() ||
                     !VMDataContextList.Any())
@@ -159,13 +160,14 @@ namespace r_crwUI_A.ViewModels
 
                 var dialog = new SaveFileDialog
                 {
-                    Title = _chooseDestinationFolderForSave
+                    Title = ChooseDestinationFolderForSave,
+                    InitialFileName = DateTime.Now.ToString(DateTimeFormat),
                 };
 
                 dialog.Filters.Add(new FileDialogFilter
                 {
-                    Extensions = new List<string> { _jsonExt },
-                    Name = _dlgJsonFilter,
+                    Extensions = new List<string> { JsonExt },
+                    Name = DlgJsonFilter,
                 });
 
                 var result = await dialog.ShowAsync(new Window());
@@ -173,14 +175,15 @@ namespace r_crwUI_A.ViewModels
                 {
                     Status = _ConfigureProvider.SaveDataToJson(VMDataContextList, result) ?
                         StatusSuccessfulSaved :
-                        StatusUnexpectedErrorInSaveProcess;
+                        StatusUnexpectedError;
                 }
-                _Logger.WriteLog("DONE");
+                _Logger.WriteLog(LogDone);
             }
             catch (Exception e)
             {
-                _Logger.WriteLog("FATAL\n" + e.Message);
-                Status = StatusUnexpectedErrorInSaveProcess;
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
+                ShowExceprionMessage(e.Message);
             }
         }
 
@@ -192,36 +195,37 @@ namespace r_crwUI_A.ViewModels
         {
             try
             {
-                _Logger.WriteLog("INFO");
+                _Logger.WriteLog(LogInfo);
 
                 var dialog = new OpenFileDialog
                 {
                     AllowMultiple = false,
-                    Title = _chooseDestinationFolderForLoad,
+                    Title = ChooseDestinationFolderForLoad,
                 };
 
                 dialog.Filters.Add(new FileDialogFilter
                 {
-                    Extensions = new List<string> { _exeExt },
-                    Name = _dlgExeFilter,
+                    Extensions = new List<string> { ExeExt },
+                    Name = DlgExeFilter,
                 });
 
                 var paths = await dialog.ShowAsync(new Window());
-                if (paths.Any())
+                if (paths is not null &&
+                    paths.Any())
                 {
                     var path = paths.FirstOrDefault();
                     if (!string.IsNullOrWhiteSpace(path))
                     {
                         _ExeFilePath = path;
                         BuildArg();
-                        _Logger.WriteLog("DONE");
+                        _Logger.WriteLog(LogDone);
                     }
                 }
             }
             catch (Exception e)
             {
-                _Logger.WriteLog("FATAL\n" + e.Message);
-                Status = StatusUnexpectedErrorExeFile;
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
             }
         }
 
@@ -230,18 +234,33 @@ namespace r_crwUI_A.ViewModels
         /// </summary>
         public void ShowHelp()
         {
-            _Logger.WriteLog("INFO");
-
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            try
             {
-                var window = new HelpWindow
+                _Logger.WriteLog(LogInfo);
+
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
-                    Height = 130,
-                    Width = 300,
-                    CanResize = false
-                };
-                window.ShowDialog(desktop.MainWindow);
-                _Logger.WriteLog("DONE");
+                    var dataContext = new HelpWindowViewModel
+                    {
+                        Title = HelpTitle,
+                        Message = Email,
+                    };
+
+                    var window = new HelpWindow
+                    {
+                        DataContext = dataContext,
+                        Height = 130,
+                        Width = 300,
+                        CanResize = false
+                    };
+                    window.ShowDialog(desktop.MainWindow);
+                    _Logger.WriteLog(LogDone);
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
             }
         }
 
@@ -250,27 +269,36 @@ namespace r_crwUI_A.ViewModels
         /// </summary>
         public void StartProcess()
         {
-            _Logger.WriteLog("INFO");
-
-            if (string.IsNullOrEmpty(ResultString))
-                Status = StatusWhatAreYouDoingHere;
-            else if (!File.Exists(_ExeFilePath))
-                Status = StatusExeFileNotFound;
-            else if (!VMDataContextList.Any(x => !string.IsNullOrEmpty(x.ValueProperty)))
-                Status = StatusKeyValuePairsNotFound;
-            else
+            try
             {
-                Status = StatusStartUpdate;
-                Process.Start(new ProcessStartInfo
+                _Logger.WriteLog(LogInfo);
+
+                if (string.IsNullOrEmpty(ResultString))
+                    Status = StatusWhatAreYouDoingHere;
+                else if (!File.Exists(_ExeFilePath))
+                    Status = StatusExeFileNotFound;
+                else if (!VMDataContextList.Any(x => !string.IsNullOrEmpty(x.ValueProperty)))
+                    Status = StatusKeyValuePairsNotFound;
+                else
                 {
-                    WorkingDirectory = Path.GetDirectoryName(_ExeFilePath),
-                    FileName = _cmd,
-                    Arguments = ArgStart + ResultString,
-                    WindowStyle = ProcessWindowStyle.Normal,
-                    UseShellExecute = false,
-                    RedirectStandardInput = true,
-                });
-                _Logger.WriteLog("DONE");
+                    Status = StatusStartUpdate;
+                    Process.Start(new ProcessStartInfo
+                    {
+                        WorkingDirectory = Path.GetDirectoryName(_ExeFilePath),
+                        FileName = Cmd,
+                        Arguments = ArgStart + ResultString,
+                        WindowStyle = ProcessWindowStyle.Normal,
+                        UseShellExecute = false,
+                        RedirectStandardInput = true,
+                    });
+                    _Logger.WriteLog(LogDone);
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
+                ShowExceprionMessage(e.Message);
             }
         }
 
@@ -279,16 +307,25 @@ namespace r_crwUI_A.ViewModels
         /// </summary>
         public void AddAttribute()
         {
-            _Logger.WriteLog("INFO");
-
-            var dataContext = new PropertyControlViewModel();
-            VMDataContextList.Add(dataContext);
-            UCPropertyList.Add(new PropertyControl
+            try
             {
-                DataContext = dataContext
-            });
+                _Logger.WriteLog(LogInfo);
 
-            _Logger.WriteLog("DONE");
+                var dataContext = new PropertyControlViewModel();
+                VMDataContextList.Add(dataContext);
+                UCPropertyList.Add(new PropertyControl
+                {
+                    DataContext = dataContext
+                });
+
+                _Logger.WriteLog(LogDone);
+            }
+            catch (Exception e)
+            {
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
+                ShowExceprionMessage(e.Message);
+            }
         }
 
         /// <summary>
@@ -298,7 +335,7 @@ namespace r_crwUI_A.ViewModels
         /// <param name="e"></param>
         public void OnClosingWindow(object sender, CancelEventArgs e)
         {
-            _Logger.WriteLog("EXIT");
+            _Logger.WriteLog(LogExit);
         }
 
         #endregion
@@ -310,16 +347,25 @@ namespace r_crwUI_A.ViewModels
         /// </summary>
         private void UpdateAttributesList()
         {
-            _Logger.WriteLog("INFO");
-         
-            UCPropertyList.Clear();
-
-            foreach (var item in VMDataContextList)
+            try
             {
-                var control = new PropertyControl { DataContext = item };
-                UCPropertyList.Add(control);
+                _Logger.WriteLog(LogInfo);
+
+                UCPropertyList.Clear();
+
+                foreach (var item in VMDataContextList)
+                {
+                    var control = new PropertyControl { DataContext = item };
+                    UCPropertyList.Add(control);
+                }
+                _Logger.WriteLog(LogDone);
             }
-            _Logger.WriteLog("DONE");
+            catch (Exception e)
+            {
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
+                ShowExceprionMessage(e.Message);
+            }
         }
 
         /// <summary>
@@ -327,26 +373,35 @@ namespace r_crwUI_A.ViewModels
         /// </summary>
         private void BuildArg()
         {
-            var str = new StringBuilder();
+            try
+            {
+                var str = new StringBuilder();
 
-            if (File.Exists(_ExeFilePath))
-                str.Append(Path.GetFileName(_ExeFilePath))
-                    .Append(ArgWhiteSpace);
-
-            if (VMDataContextList.Any())
-                foreach (var item in VMDataContextList)
-                {
-                    str.Append(item.KeyProperty)
+                if (File.Exists(_ExeFilePath))
+                    str.Append(Path.GetFileName(_ExeFilePath))
                         .Append(ArgWhiteSpace);
 
-                    if (!string.IsNullOrEmpty(item.ValueProperty))
-                        str.Append(ArgQuotation)
-                            .Append(item.ValueProperty)
-                            .Append(ArgQuotation)
+                if (VMDataContextList.Any())
+                    foreach (var item in VMDataContextList)
+                    {
+                        str.Append(item.KeyProperty)
                             .Append(ArgWhiteSpace);
-                }
 
-            ResultString = str.ToString();
+                        if (!string.IsNullOrEmpty(item.ValueProperty))
+                            str.Append(ArgQuotation)
+                                .Append(item.ValueProperty)
+                                .Append(ArgQuotation)
+                                .Append(ArgWhiteSpace);
+                    }
+
+                ResultString = str.ToString();
+            }
+            catch (Exception e)
+            {
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
+                ShowExceprionMessage(e.Message);
+            }
         }
 
         /// <summary>
@@ -355,45 +410,86 @@ namespace r_crwUI_A.ViewModels
         /// <param name="property">Удаляемый контрол</param>
         private void DeleteProperty(PropertyControlViewModel property)
         {
-            _Logger.WriteLog("INFO");
-
-            var control = UCPropertyList.FirstOrDefault(x => Equals(x.DataContext, property));
-            if (control != null)
+            try
             {
-                VMDataContextList.Remove(property);
-                UpdateAttributesList();
-            }
+                _Logger.WriteLog(LogInfo);
 
-            _Logger.WriteLog("DONE");
+                var control = UCPropertyList.FirstOrDefault(x => Equals(x.DataContext, property));
+                if (control != null)
+                {
+                    VMDataContextList.Remove(property);
+                    UpdateAttributesList();
+                }
+
+                _Logger.WriteLog(LogDone);
+            }
+            catch (Exception e)
+            {
+                _Logger.WriteLog(LogFatal + e);
+                Status = StatusUnexpectedError;
+                ShowExceprionMessage(e.Message);
+            }
         }
 
         #endregion
 
+        /// <summary>
+        /// Отображение сообщения об ошибке
+        /// </summary>
+        /// <param name="exception">Сообщение об ошибке</param>
+        private void ShowExceprionMessage(string exception)
+        {
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var dataContext = new HelpWindowViewModel
+                {
+                    Title = StatusUnexpectedError,
+                    Message = string.Format(LookForLogs, exception),
+                };
+
+                var window = new HelpWindow
+                {
+                    DataContext = dataContext,
+                    Height = 130,
+                    Width = 300,
+                    CanResize = false
+                };
+                window.ShowDialog(desktop.MainWindow);
+            }
+        }
+
         #region Константы
 
-        private const string _chooseDestinationFolderForLoad = "Выберите файл для загрузки.";
-        private const string _chooseDestinationFolderForSave = "Выберите папку, в которую будет сохранён конфигурационный файл.";
-        private const string _jsonExt = "json";
-        private const string _exeExt = "exe";
-        private const string _dlgJsonFilter = "Json documents (.json)|*.json";
-        private const string _dlgExeFilter = "Executable files (.exe)|*.exe";
+        private const string ChooseDestinationFolderForLoad = "Выберите файл для загрузки.";
+        private const string ChooseDestinationFolderForSave = "Выберите папку, в которую будет сохранён конфигурационный файл.";
+        private const string JsonExt = "json";
+        private const string ExeExt = "exe";
+        private const string DlgJsonFilter = "Json documents (.json)|*.json";
+        private const string DlgExeFilter = "Executable files (.exe)|*.exe";
 
         private const string StatusHelloWorld = "Привет!";
         private const string StatusSuccessfulUpload = "Конфигурационный файл \"{0}\" успешно загружен";
-        private const string StatusUnexpectedErrorInLoadProcess = "Непредвиденная ошибка при попытке загрузки файла!";
         private const string StatusNothingToSave = "Нечего сохранять.";
         private const string StatusSuccessfulSaved = "Данные успешно сохранены.";
-        private const string StatusUnexpectedErrorInSaveProcess = "Непредвиденная ошибка при сохранении данных!";
-        private const string StatusUnexpectedErrorExeFile = "Непредвиденная ошибка при указании пути к исполняемому файлу!";
+        private const string StatusUnexpectedError = "Непредвиденная ошибка";
         private const string StatusExeFileNotFound = "Укажите путь к исполняемому файлу.";
         private const string StatusKeyValuePairsNotFound = "Не указано ни одной пары ключ-значение";
         private const string StatusWhatAreYouDoingHere = "Надо указать путь к исполняемому файлу, а потом выбрать конфигурационный файл и ввести значения ключам.";
         private const string StatusStartUpdate = "Поехали!";
-
-        private const string _cmd = "cmd";
+        private const string LookForLogs = "{0}\nПодробности в логах.";
+        private const string DateTimeFormat = "yyyy.MM.dd HH.mm.ss";
+        private const string Cmd = "cmd";
         private const string ArgStart = "/k START ";
         private const char ArgWhiteSpace = ' ';
         private const char ArgQuotation = '"';
+
+        private const string LogInfo = "INFO";
+        private const string LogDone = "DONE";
+        private const string LogFatal = "FATAL\n";
+        private const string LogExit = "EXIT";
+        private const string LogCreateVM = "\nСоздание MainWindowViewModel";
+        private const string HelpTitle = "Помощь";
+        private const string Email = "mnocard@gmail.com";
 
         #endregion
     }

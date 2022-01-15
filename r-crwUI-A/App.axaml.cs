@@ -47,6 +47,7 @@ namespace r_crwUI_A
         private static void ConfigureServices(HostBuilderContext host, IServiceCollection services)
         {
             services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<HelpWindowViewModel>();
             services.AddTransient<IConfigureProvider, ConfigureProvider>();
             services.AddSingleton<ILogger, Logger>();
         }
