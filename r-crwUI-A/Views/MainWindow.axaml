@@ -1,0 +1,48 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:material="using:Material.Icons.Avalonia"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="r_crwUI_A.MainWindow"
+        Title="r_crwUI_A"
+		DataContext="{Binding MWModel, Source={StaticResource Locator}}"
+		>
+	<Grid RowDefinitions="*, 8*, 3*, 30">
+		<DockPanel LastChildFill="false">
+			<Button DockPanel.Dock="Left" Margin="5" ToolTip.Tip="Указать путь к исполняемому файлу" Command="{Binding SelectPath}" >
+				<material:MaterialIcon Kind="Folder" />
+			</Button>
+			<Button DockPanel.Dock="Left" Margin="5" ToolTip.Tip="Добавить атрибут" Command="{Binding AddAttribute}" >
+				<material:MaterialIcon Kind="AddBold" />
+			</Button>
+			<Button DockPanel.Dock="Right" Margin="5" ToolTip.Tip="Сохранить данные в персональный конфигурационный файл" Command="{Binding SaveConfig}" >
+				<material:MaterialIcon Kind="Upload" />
+			</Button>
+			<Button DockPanel.Dock="Right" Margin="5" Content="Загрузить строку" ToolTip.Tip="Загрузить данные из персонального конфигурационного файла" Command="{Binding LoadConfig}" >
+				<material:MaterialIcon Kind="Download" />
+			</Button>
+		</DockPanel>
+		<ListBox Grid.Row="1" Items="{Binding UCPropertyList}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Border Background="Red" CornerRadius="4" Padding="4">
+						<TextBlock Text="{Binding}"/>
+					</Border>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+		<Grid Grid.Row="2" Background="Gray" ColumnDefinitions="8*, *">
+			<TextBox Grid.Column="0" Margin="5" Text="{Binding ResultString}" Foreground="Black" TextWrapping="Wrap"  CaretBrush="Black" />
+			<Button Grid.Column="1" Margin="5" Command="{Binding StartProcess}" ToolTip.Tip="Запустить командную строку c указанными аргументами">
+				<material:MaterialIcon Kind="ArrowRightBold" Height="40" Width="40" />
+			</Button>
+		</Grid>
+		<DockPanel Grid.Row="3" LastChildFill="False" Margin="3" >
+			<TextBlock DockPanel.Dock="Left" Text="{Binding Status}" VerticalAlignment="Center" />
+			<Button Background="Transparent" DockPanel.Dock="Right" Grid.Column="1" Command="{Binding ShowHelp}" ToolTip.Tip="Справка">
+				<material:MaterialIcon Kind="QuestionMark" Height="15" Width="15" />
+			</Button>
+		</DockPanel>
+	</Grid>
+</Window>

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31729.503
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32104.313
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "reactor-crwUI", "reactor-crwUI\reactor-crwUI.csproj", "{5CF431ED-072A-4856-A557-BBE9A6E4482A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "r-crwUI-A", "r-crwUI-A\r-crwUI-A.csproj", "{D2F7963E-364F-40F9-B316-D10BB968FDC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5CF431ED-072A-4856-A557-BBE9A6E4482A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5CF431ED-072A-4856-A557-BBE9A6E4482A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5CF431ED-072A-4856-A557-BBE9A6E4482A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5CF431ED-072A-4856-A557-BBE9A6E4482A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2F7963E-364F-40F9-B316-D10BB968FDC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2F7963E-364F-40F9-B316-D10BB968FDC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2F7963E-364F-40F9-B316-D10BB968FDC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2F7963E-364F-40F9-B316-D10BB968FDC4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

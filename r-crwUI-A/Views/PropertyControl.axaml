@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:material="using:Material.Icons.Avalonia"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="30"
+             x:Class="r_crwUI_A.Views.PropertyControl">
+	<Grid ColumnDefinitions="*,*, 60">
+		<TextBox Margin="10, 0" Grid.Column="0" Text="{Binding KeyProperty}" VerticalAlignment="Center" />
+		<TextBox Margin="10, 0" Grid.Column="1" Text="{Binding ValueProperty}" VerticalAlignment="Center" />
+		<Button Margin="10, 0" Grid.Column="2" ToolTip.Tip="Указать путь к исполняемому файлу" Command="{Binding DeleteControl}" >
+			<material:MaterialIcon Kind="Trash" />
+		</Button>
+	</Grid>
+</UserControl>

@@ -1,0 +1,17 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:core="clr-namespace:r_crwUI_A.Core"
+             xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
+             x:Class="r_crwUI_A.App">
+    <Application.Styles>
+		<StyleInclude Source="avares://Material.Avalonia/Material.Avalonia.Templates.xaml" />
+    </Application.Styles>
+	<Application.Resources>
+		<ResourceDictionary>
+			<core:ViewModelLocator x:Key="Locator" />
+			<ResourceDictionary.MergedDictionaries>
+				<themes:BundledTheme BaseTheme="Dark" PrimaryColor="Orange" SecondaryColor="Blue"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+</Application>
