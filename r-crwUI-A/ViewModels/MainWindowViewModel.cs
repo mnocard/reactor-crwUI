@@ -88,6 +88,24 @@ namespace r_crwUI_A.ViewModels
         private List<PropertyControlViewModel> VMDataContextList = new();
         #endregion
 
+        #region Separator : string - Разделитель между ключом и значением
+
+        /// <summary>Разделитель между ключом и значением</summary>
+        private string _Separator = ArgWhiteSpace.ToString();
+
+        /// <summary>Разделитель между ключом и значением</summary>
+        public string Separator
+        {
+            get => _Separator;
+            set
+            {
+                Set(ref _Separator, value);
+                BuildArg();
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Команды
@@ -384,14 +402,15 @@ namespace r_crwUI_A.ViewModels
                 if (VMDataContextList.Any())
                     foreach (var item in VMDataContextList)
                     {
-                        str.Append(item.KeyProperty)
-                            .Append(ArgWhiteSpace);
+                        str.Append(item.KeyProperty);
 
                         if (!string.IsNullOrEmpty(item.ValueProperty))
-                            str.Append(ArgQuotation)
-                                .Append(item.ValueProperty)
+                            str.Append(Separator)
                                 .Append(ArgQuotation)
-                                .Append(ArgWhiteSpace);
+                                .Append(item.ValueProperty)
+                                .Append(ArgQuotation);
+
+                        str.Append(ArgWhiteSpace);
                     }
 
                 ResultString = str.ToString();
@@ -431,8 +450,6 @@ namespace r_crwUI_A.ViewModels
             }
         }
 
-        #endregion
-
         /// <summary>
         /// Отображение сообщения об ошибке
         /// </summary>
@@ -458,6 +475,7 @@ namespace r_crwUI_A.ViewModels
             }
         }
 
+        #endregion
         #region Константы
 
         private const string ChooseDestinationFolderForLoad = "Выберите файл для загрузки.";

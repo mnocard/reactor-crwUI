@@ -16,7 +16,9 @@
 			<Button DockPanel.Dock="Left" Margin="5" ToolTip.Tip="Добавить атрибут" Command="{Binding AddAttribute}" >
 				<material:MaterialIcon Kind="AddBold" />
 			</Button>
-			<Button DockPanel.Dock="Right" Margin="5" ToolTip.Tip="Сохранить данные в персональный конфигурационный файл" Command="{Binding SaveConfig}" >
+			<TextBlock DockPanel.Dock="Left" Margin="5" Text="Разделитель" ToolTip.Tip="Использователь символ-разделитель между ключом и значением" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+			<TextBox DockPanel.Dock="Left" Margin="5" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Left" HorizontalAlignment="Left" Width="50" Text="{Binding Separator}" />
+			<Button DockPanel.Dock="Right" Margin="5" ToolTip.Tip="Сохранить данные в персональный конфигурационный файл" Command="{Binding SaveConfig}">
 				<material:MaterialIcon Kind="Upload" />
 			</Button>
 			<Button DockPanel.Dock="Right" Margin="5" Content="Загрузить строку" ToolTip.Tip="Загрузить данные из персонального конфигурационного файла" Command="{Binding LoadConfig}" >
