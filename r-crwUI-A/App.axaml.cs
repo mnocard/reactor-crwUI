@@ -50,6 +50,7 @@ namespace r_crwUI_A
             services.AddSingleton<HelpWindowViewModel>();
             services.AddTransient<IConfigureProvider, ConfigureProvider>();
             services.AddSingleton<ILogger, Logger>();
+            services.AddSingleton<ILoadDefaultSettings, LoadDefaultSettings>();
         }
     }
 }

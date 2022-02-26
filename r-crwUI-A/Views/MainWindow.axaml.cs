@@ -23,6 +23,7 @@ namespace r_crwUI_A
             AvaloniaXamlLoader.Load(this);
             var vm = App.Services.GetRequiredService<MainWindowViewModel>();
             Closing += vm.OnClosingWindow;
+            Opened += vm.OnOpenedWindow;
         }
 
     }

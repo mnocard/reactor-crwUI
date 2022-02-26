@@ -1,8 +1,10 @@
-﻿using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls;
 using r_crwUI_A.Core;
 using r_crwUI_A.Interfaces;
 using r_crwUI_A.Services;
+using r_crwUI_A.Views;
 
 using System;
 using System.Collections.Generic;
@@ -12,8 +14,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Avalonia;
-using r_crwUI_A.Views;
 using System.ComponentModel;
 
 namespace r_crwUI_A.ViewModels
@@ -21,13 +21,15 @@ namespace r_crwUI_A.ViewModels
     class MainWindowViewModel : ViewModelCore
     {
         #region Сервисы
+        private readonly ILoadDefaultSettings _loadDefaultSettings;
         private readonly IConfigureProvider _ConfigureProvider;
         private readonly ILogger _Logger;
         #endregion
 
-        public MainWindowViewModel(IConfigureProvider configureProvider, ILogger logger)
+        public MainWindowViewModel(ILoadDefaultSettings loadDefaultSettings, IConfigureProvider configureProvider, ILogger logger)
         {
             _Logger = logger;
+            _loadDefaultSettings = loadDefaultSettings;
             _ConfigureProvider = configureProvider;
             PropertyTransmitter.OnMessageTransmitted += BuildArg;
             PropertyTransmitter.OnDeleteEntity += DeleteProperty;
@@ -134,20 +136,7 @@ namespace r_crwUI_A.ViewModels
                 if (paths is not null &&
                     paths.Any())
                 {
-                    var path = paths.FirstOrDefault();
-                    if (!string.IsNullOrWhiteSpace(path))
-                    {
-                        var dictionary = _ConfigureProvider.LoadDataFromJson<List<PropertyControlViewModel>>(path);
-                        if (dictionary.Any())
-                        {
-                            _Logger.WriteLog(LogInfo);
-                            VMDataContextList.Clear();
-                            VMDataContextList.AddRange(dictionary);
-                            UpdateAttributesList();
-                            Status = string.Format(StatusSuccessfulUpload, Path.GetFileName(path));
-                            _Logger.WriteLog(LogDone);
-                        }
-                    }
+                    FillDictionary(paths.FirstOrDefault());
                 }
                 _Logger.WriteLog(LogDone);
             }
@@ -179,7 +168,7 @@ namespace r_crwUI_A.ViewModels
                 var dialog = new SaveFileDialog
                 {
                     Title = ChooseDestinationFolderForSave,
-                    InitialFileName = DateTime.Now.ToString(DateTimeFormat),
+                    InitialFileName = DlgDefaultFileName + DateTime.Now.ToString(DateTimeFormat),
                 };
 
                 dialog.Filters.Add(new FileDialogFilter
@@ -351,9 +340,46 @@ namespace r_crwUI_A.ViewModels
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void OnClosingWindow(object sender, CancelEventArgs e)
+        public void OnClosingWindow(object? sender, CancelEventArgs e)
         {
             _Logger.WriteLog(LogExit);
+        }
+
+        /// <summary>
+        /// Открытие программы
+        /// </summary>
+        public void OnOpenedWindow(object? sender, EventArgs e)
+        {
+            try
+            {
+                _Logger.WriteLog("Попытка найти и загрузить файлы настроек и исполняемый файл из корневой папки.");
+                var settingsFileName = _loadDefaultSettings.GetDefaultSettings();
+                FillDictionary(settingsFileName);
+
+                _ExeFilePath = _loadDefaultSettings.GetDefaultFilePath();
+                BuildArg();
+            }
+            catch (Exception ex)
+            {
+                _Logger.WriteLog(LogFatal + ex.Message);
+            }
+        }
+
+        private void FillDictionary(string settingsFileName)
+        {
+            if (!string.IsNullOrWhiteSpace(settingsFileName))
+            {
+                var dictionary = _ConfigureProvider.LoadDataFromJson<List<PropertyControlViewModel>>(settingsFileName);
+                if (dictionary.Any())
+                {
+                    _Logger.WriteLog(LogInfo);
+                    VMDataContextList.Clear();
+                    VMDataContextList.AddRange(dictionary);
+                    UpdateAttributesList();
+                    Status = string.Format(StatusSuccessfulUpload, Path.GetFileName(settingsFileName));
+                    _Logger.WriteLog(LogDone);
+                }
+            }
         }
 
         #endregion
@@ -476,6 +502,7 @@ namespace r_crwUI_A.ViewModels
         }
 
         #endregion
+
         #region Константы
 
         private const string ChooseDestinationFolderForLoad = "Выберите файл для загрузки.";
@@ -484,6 +511,7 @@ namespace r_crwUI_A.ViewModels
         private const string ExeExt = "exe";
         private const string DlgJsonFilter = "Json documents (.json)|*.json";
         private const string DlgExeFilter = "Executable files (.exe)|*.exe";
+        private const string DlgDefaultFileName = "settings ";
 
         private const string StatusHelloWorld = "Привет!";
         private const string StatusSuccessfulUpload = "Конфигурационный файл \"{0}\" успешно загружен";
