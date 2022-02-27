@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.ComponentModel;
+using r_crwUI_A.Model;
 
 namespace r_crwUI_A.ViewModels
 {
@@ -79,17 +80,6 @@ namespace r_crwUI_A.ViewModels
 
         #endregion
 
-        #region ExeFilePath : string - Путь к исполняемому файлу
-        /// <summary>Путь к исполняемому файлу</summary>
-        private string _ExeFilePath;
-
-        #endregion
-
-        #region VMDataContextList : List<PropertyControlViewModel> - Список датаконтекстов для юзерконтролов
-        /// <summary>Список датаконтекстов для юзерконтролов</summary>
-        private List<PropertyControlViewModel> VMDataContextList = new();
-        #endregion
-
         #region Separator : string - Разделитель между ключом и значением
 
         /// <summary>Разделитель между ключом и значением</summary>
@@ -108,11 +98,31 @@ namespace r_crwUI_A.ViewModels
 
         #endregion
 
+        #region ExeFilePath : string - Путь к исполняемому файлу
+        /// <summary>Путь к исполняемому файлу</summary>
+        private string _ExeFilePath;
+
+        #endregion
+
+        #region VMDataContextList : List<PropertyControlViewModel> - Список датаконтекстов для юзерконтролов
+        /// <summary>Список датаконтекстов для юзерконтролов</summary>
+        private List<PropertyControlViewModel> VMDataContextList = new();
+        #endregion
+
+        #region Options : Dictionary<string, string> - Список датаконтекстов для юзерконтролов
+        /// <summary>Список датаконтекстов для юзерконтролов</summary>
+        private readonly Dictionary<string, string> Options = new Dictionary<string, string>
+        {
+            { _separatorOption, "" },
+            { _exePathOption, "" }
+        };
+        #endregion
+
         #endregion
 
         #region Команды
         /// <summary>
-        /// Загрузка версии обновления со значениями из json файла
+        /// Загрузка атрибутов со значениями из json файла
         /// </summary>
         /// <returns></returns>
         public async Task LoadConfig()
@@ -124,7 +134,6 @@ namespace r_crwUI_A.ViewModels
                 {
                     AllowMultiple = false,
                     Title = ChooseDestinationFolderForLoad,
-                    InitialFileName = DateTime.Now.ToString(DateTimeFormat),
                 };
                 dialog.Filters.Add(new FileDialogFilter
                 {
@@ -144,12 +153,12 @@ namespace r_crwUI_A.ViewModels
             {
                 _Logger.WriteLog(LogFatal + e);
                 Status = StatusUnexpectedError;
-                ShowExceprionMessage(e.Message);
+                ShowExceptionMessage(e.Message);
             }
         }
 
         /// <summary>
-        /// Сохранение версии обновления со значениями в json файл
+        /// Сохранение атрибутов со значениями в json файл
         /// </summary>
         /// <returns></returns>
         public async Task SaveConfig()
@@ -180,7 +189,12 @@ namespace r_crwUI_A.ViewModels
                 var result = await dialog.ShowAsync(new Window());
                 if (!string.IsNullOrEmpty(result))
                 {
-                    Status = _ConfigureProvider.SaveDataToJson(VMDataContextList, result) ?
+                    var settings = new Settings
+                    {
+                        _Dictionary = Options,
+                        _PropertyControl = VMDataContextList,
+                    };
+                    Status = _ConfigureProvider.SaveDataToJson(settings, result) ?
                         StatusSuccessfulSaved :
                         StatusUnexpectedError;
                 }
@@ -190,7 +204,7 @@ namespace r_crwUI_A.ViewModels
             {
                 _Logger.WriteLog(LogFatal + e);
                 Status = StatusUnexpectedError;
-                ShowExceprionMessage(e.Message);
+                ShowExceptionMessage(e.Message);
             }
         }
 
@@ -305,7 +319,7 @@ namespace r_crwUI_A.ViewModels
             {
                 _Logger.WriteLog(LogFatal + e);
                 Status = StatusUnexpectedError;
-                ShowExceprionMessage(e.Message);
+                ShowExceptionMessage(e.Message);
             }
         }
 
@@ -331,7 +345,7 @@ namespace r_crwUI_A.ViewModels
             {
                 _Logger.WriteLog(LogFatal + e);
                 Status = StatusUnexpectedError;
-                ShowExceprionMessage(e.Message);
+                ShowExceptionMessage(e.Message);
             }
         }
 
@@ -356,7 +370,8 @@ namespace r_crwUI_A.ViewModels
                 var settingsFileName = _loadDefaultSettings.GetDefaultSettings();
                 FillDictionary(settingsFileName);
 
-                _ExeFilePath = _loadDefaultSettings.GetDefaultFilePath();
+                if (string.IsNullOrEmpty(_ExeFilePath))
+                    _ExeFilePath = _loadDefaultSettings.GetDefaultFilePath();
                 BuildArg();
             }
             catch (Exception ex)
@@ -365,26 +380,30 @@ namespace r_crwUI_A.ViewModels
             }
         }
 
+        #endregion
+
+        #region Приватные методы
+
         private void FillDictionary(string settingsFileName)
         {
             if (!string.IsNullOrWhiteSpace(settingsFileName))
             {
-                var dictionary = _ConfigureProvider.LoadDataFromJson<List<PropertyControlViewModel>>(settingsFileName);
-                if (dictionary.Any())
+                _Logger.WriteLog(LogInfo);
+                var settings = _ConfigureProvider.LoadDataFromJson<Settings>(settingsFileName);
+
+                Separator = settings._Dictionary[_separatorOption];
+                _ExeFilePath = settings._Dictionary[_exePathOption];
+
+                if (settings._PropertyControl != null)
                 {
-                    _Logger.WriteLog(LogInfo);
                     VMDataContextList.Clear();
-                    VMDataContextList.AddRange(dictionary);
-                    UpdateAttributesList();
-                    Status = string.Format(StatusSuccessfulUpload, Path.GetFileName(settingsFileName));
-                    _Logger.WriteLog(LogDone);
+                    VMDataContextList.AddRange(settings._PropertyControl);
                 }
+                UpdateAttributesList();
+                Status = string.Format(StatusSuccessfulUpload, Path.GetFileName(settingsFileName));
+                _Logger.WriteLog(LogDone);
             }
         }
-
-        #endregion
-
-        #region Приватные методы
 
         /// <summary>
         /// Обновление данных
@@ -408,7 +427,7 @@ namespace r_crwUI_A.ViewModels
             {
                 _Logger.WriteLog(LogFatal + e);
                 Status = StatusUnexpectedError;
-                ShowExceprionMessage(e.Message);
+                ShowExceptionMessage(e.Message);
             }
         }
 
@@ -440,12 +459,13 @@ namespace r_crwUI_A.ViewModels
                     }
 
                 ResultString = str.ToString();
+                RefreshOptions();
             }
             catch (Exception e)
             {
                 _Logger.WriteLog(LogFatal + e);
                 Status = StatusUnexpectedError;
-                ShowExceprionMessage(e.Message);
+                ShowExceptionMessage(e.Message);
             }
         }
 
@@ -472,7 +492,7 @@ namespace r_crwUI_A.ViewModels
             {
                 _Logger.WriteLog(LogFatal + e);
                 Status = StatusUnexpectedError;
-                ShowExceprionMessage(e.Message);
+                ShowExceptionMessage(e.Message);
             }
         }
 
@@ -480,7 +500,7 @@ namespace r_crwUI_A.ViewModels
         /// Отображение сообщения об ошибке
         /// </summary>
         /// <param name="exception">Сообщение об ошибке</param>
-        private void ShowExceprionMessage(string exception)
+        private void ShowExceptionMessage(string exception)
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -501,6 +521,18 @@ namespace r_crwUI_A.ViewModels
             }
         }
 
+        private void RefreshOptions()
+        {
+            if (Options.ContainsKey(_separatorOption))
+                Options[_separatorOption] = Separator;
+            else
+                Options.Add(_separatorOption, Separator);
+
+            if (Options.ContainsKey(_exePathOption))
+                Options[_exePathOption] = _ExeFilePath;
+            else
+                Options.Add(_exePathOption, _ExeFilePath);
+        }
         #endregion
 
         #region Константы
@@ -537,6 +569,8 @@ namespace r_crwUI_A.ViewModels
         private const string HelpTitle = "Помощь";
         private const string Email = "mnocard@gmail.com";
 
+        private const string _separatorOption = "Separator";
+        private const string _exePathOption = "Path to executable file";
         #endregion
     }
 }
